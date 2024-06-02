@@ -1,0 +1,12 @@
+[package]
+name = "cprime-bot-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+poise = "0.6.1"
+rand = "0.8.5"
+serde = "1.0.203"
+serenity = "0.12.1"
+tokio = { version = "1.37.0", features = ["rt-multi-thread"] }
+toml = "0.8.13"
