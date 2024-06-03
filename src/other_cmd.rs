@@ -151,9 +151,19 @@ impl OtherCmd {
         Ok(())
     }
 
-    #[poise::command(prefix_command)]
-    pub async fn spam(ctx: Context<'_>) -> Result<(), Error>{
-        todo!("Implement spam command");
+    #[poise::command(prefix_command, user_cooldown=5)]
+    pub async fn spam(ctx: Context<'_>, args: Vec<String>) -> Result<(), Error>{
+        delete_message!(ctx);
+        let spam_times = args.last()
+            .unwrap()
+            .parse::<u32>()
+            .expect("Parsing uint32 error");
+        let s = &args[0..args.len()-1].join(" ");
+        let mut counter: u32 = 0;
+        while counter != spam_times {
+            ctx.say(s).await?;
+            counter = counter + 1;
+        }
         Ok(())
     }
 }
