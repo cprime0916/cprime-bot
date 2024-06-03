@@ -1,9 +1,12 @@
 mod other_cmd;
 mod config;
+mod utils;
 
 use poise::serenity_prelude as serenity;
 use toml;
 use std::fs;
+use crate::utils::Cmd;
+
 struct Data {} // User data, which is stored and accessible in all command invocations
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
@@ -17,7 +20,7 @@ async fn main() {
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![other_cmd::OtherCmd::say(), other_cmd::OtherCmd::quote()],
+            commands: other_cmd::OtherCmd::commands(),
             prefix_options: poise::PrefixFrameworkOptions {
                 prefix: Some(".".to_owned()),
                 ..Default::default()

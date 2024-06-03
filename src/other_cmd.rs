@@ -1,8 +1,15 @@
-use crate::{Context, Error};
+use crate::{Context, Data, delete_message, Error};
 use rand::thread_rng;
 use rand::Rng;
-use std::fs;
+use poise::Command;
+use crate::utils::Cmd;
+
 pub(crate) struct OtherCmd;
+impl Cmd for OtherCmd{
+    fn commands() -> Vec<Command<Data, Error>> {
+        vec![Self::say(), Self::quote(), Self::agree(),]
+    }
+}
 impl OtherCmd {
     #[poise::command(prefix_command)]
     pub async fn say(
@@ -10,20 +17,14 @@ impl OtherCmd {
         args: Vec<String>,
     ) -> Result<(), Error> {
         let s = args.join(" ");
-        match ctx.channel_id().delete_message(&ctx, ctx.id()).await {
-            Ok(_) => {
-                ctx.say(s).await?;
-            }
-            Err(e) => {
-                eprintln!("{}", e);
-                ctx.say("How to delete this fucking message?").await?;
-            }
-        }
+        delete_message!(ctx);
+        ctx.say(s).await?;
         Ok(())
     }
 
     #[poise::command(prefix_command)]
     pub async fn quote(ctx: Context<'_>) -> Result<(), Error>{
+        delete_message!(ctx);
         let rand = thread_rng().gen_range(1..7);
         match rand{
             1 => {
@@ -54,6 +55,34 @@ impl OtherCmd {
             }
             _ => {
                 ctx.say("Err it seems like I have a skill issue, I can't even quote :skull:").await?;
+                eprintln!("How the fuck is it not in the range?");
+            }
+        }
+        Ok(())
+    }
+
+    #[poise::command(prefix_command)]
+    pub async fn agree(ctx: Context<'_>) -> Result<(), Error>{
+        delete_message!(ctx);
+        let rand = thread_rng().gen_range(1..6);
+        match rand{
+            1 => {
+                ctx.say("Indeed").await?;
+            }
+            2 => {
+                ctx.say("fr").await?;
+            }
+            3 => {
+                ctx.say("yeah").await?;
+            }
+            4 => {
+                ctx.say("fax").await?;
+            }
+            5 => {
+                ctx.say("Real").await?;
+            }
+            _ => {
+                ctx.say("Err it seems like I have a skill issue, I can't even agree :skull:").await?;
                 eprintln!("How the fuck is it not in the range?");
             }
         }
