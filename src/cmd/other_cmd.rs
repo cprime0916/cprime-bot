@@ -1,12 +1,15 @@
 #![allow(unreachable_code, unused_variables)]
+
 use crate::{Context, Data, delete_message, Error, error_print};
 use rand::thread_rng;
 use rand::Rng;
-use poise::Command;
+use poise::{Command};
 use crate::utils::Cmd;
+use poise::serenity_prelude as serenity;
 
-const LEFT_PRAYER: &str = "O Left,\n\
-                            Lord of AK,\
+
+const LEFT_PRAYER: &str = "O Left,\
+                            \nLord of AK,\
                             \nwhom leads to the truthful and righteous path.\
                             \nmay thou grant us the way to AK,\
                             \nthe path with AC'ing tasks in thy name,\
@@ -146,8 +149,13 @@ impl OtherCmd {
     }
 
     #[poise::command(prefix_command)]
-    pub async fn reply(ctx: Context<'_>) -> Result<(), Error>{
-        todo!("Implement reply command");
+    pub async fn reply(ctx: Context<'_>, msg_id: u64, args: Vec<String>) -> Result<(), Error>{
+        let s = args.join(" ");
+        let message = ctx
+            .http()
+            .get_message(ctx.channel_id(), serenity::MessageId::new(msg_id))
+            .await?;
+        message.reply(&ctx, s).await?;
         Ok(())
     }
 

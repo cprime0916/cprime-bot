@@ -1,10 +1,13 @@
-mod other_cmd;
+mod cmd{
+    pub mod other_cmd;
+}
 mod config;
 mod utils;
 
 use poise::serenity_prelude as serenity;
 use toml;
 use std::fs;
+use serenity::gateway::ActivityData;
 use crate::utils::Cmd;
 
 struct Data {} // User data, which is stored and accessible in all command invocations
@@ -17,10 +20,11 @@ async fn main() {
     let config_toml: config::Config = toml::from_str(&toml_info).unwrap();
     let token = config_toml.discord.token;
     let intents = serenity::GatewayIntents::all();
+    let activity = ActivityData::listening("Preußenlied");
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: other_cmd::OtherCmd::commands(),
+            commands: cmd::other_cmd::OtherCmd::commands(),
             prefix_options: poise::PrefixFrameworkOptions {
                 prefix: Some(".".to_owned()),
                 ..Default::default()
@@ -37,6 +41,7 @@ async fn main() {
 
     let client = serenity::ClientBuilder::new(token, intents)
         .framework(framework)
+        .activity(activity)
         .await;
     client.unwrap().start().await.unwrap();
 }
