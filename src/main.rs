@@ -1,5 +1,6 @@
 mod cmd{
     pub mod other_cmd;
+    pub mod contest_cmd;
 }
 mod config;
 mod utils;
