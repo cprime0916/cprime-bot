@@ -24,11 +24,11 @@ const CODE_PRAYER: &str = "O Left,\
                             \nto increase ranking in thy name,\
                             \n& under thy glory.\
                             \nAccepted.";
-
+const DISCORD_CHAR_LIMIT: usize = 2000;
 pub(crate) struct OtherCmd;
 impl Cmd for OtherCmd{
     fn commands() -> Vec<Command<Data, Error>> {
-        vec![Self::say(), Self::quote(), Self::agree(), Self::disagree(), Self::reply(), Self::spam(),]
+        vec![Self::say(), Self::quote(), Self::agree(), Self::disagree(), Self::reply(), Self::spam(), Self::brainrot(),]
     }
 }
 impl OtherCmd {
@@ -172,6 +172,25 @@ impl OtherCmd {
             ctx.say(s).await?;
             counter = counter + 1;
         }
+        Ok(())
+    }
+
+    #[poise::command(prefix_command)]
+    pub async fn brainrot(ctx: Context<'_>) -> Result<(), Error>{
+        delete_message!(ctx);
+        let mut s = String::new();
+        while s.len() < DISCORD_CHAR_LIMIT{
+            let rand = thread_rng().gen_range(1..5);
+            let mut _cstring = "";
+            match rand{
+                1 => _cstring = "SO SIGMA 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ 😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈",
+                2 => _cstring = "SKIBIDI TOILET BABY GRONK W RIZZ FR IN OHIO STICKING OUT UR GYATT FOR THE RIZZLER 🚽🚽🚽🚽🚽🚽🗿🗿🗿🗿🗿🗿🗿",
+                3 => _cstring = "BABY GRONK W MEWING STREAK W/ LEVEL 69 GYATT EDGING OR GOONING GOATED???? 🗿🗿🗿🗿🗿🗿🗿🗿⁉️⁉️⁉️⁉️⁉️⁉️⁉️",
+                _ => _cstring = "SKIBIDI RIZZLER G-MAN TOILET VS TITAN CAMERAMAN 🚽🚽🚽🚽🚽🚽🚽🚽🚽 SKIBIDI EDGING STREAK 🚽🚽🚽🚽🚽🚽🚽"
+            }
+            s = s.to_owned() + _cstring;
+        }
+        ctx.say(s).await?;
         Ok(())
     }
 }
