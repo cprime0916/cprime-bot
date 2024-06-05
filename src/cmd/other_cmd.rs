@@ -32,7 +32,7 @@ impl Cmd for OtherCmd{
     }
 }
 impl OtherCmd {
-    #[poise::command(prefix_command)]
+    #[poise::command(prefix_command, category="OtherCmd")]
     pub async fn say(
         ctx: Context<'_>,
         args: Vec<String>,
@@ -53,7 +53,7 @@ impl OtherCmd {
         Ok(())
     }
 
-    #[poise::command(prefix_command)]
+    #[poise::command(prefix_command, category="OtherCmd")]
     pub async fn quote(ctx: Context<'_>) -> Result<(), Error>{
         delete_message!(ctx);
         let rand = thread_rng().gen_range(1..7);
@@ -91,7 +91,7 @@ impl OtherCmd {
         Ok(())
     }
 
-    #[poise::command(prefix_command)]
+    #[poise::command(prefix_command, category="OtherCmd")]
     pub async fn agree(ctx: Context<'_>) -> Result<(), Error>{
         delete_message!(ctx);
         let rand = thread_rng().gen_range(1..6);
@@ -118,7 +118,7 @@ impl OtherCmd {
         Ok(())
     }
 
-    #[poise::command(prefix_command)]
+    #[poise::command(prefix_command, category="OtherCmd")]
     pub async fn disagree(ctx: Context<'_>) -> Result<(), Error>{
         delete_message!(ctx);
         let rand = thread_rng().gen_range(1..7);
@@ -148,8 +148,9 @@ impl OtherCmd {
         Ok(())
     }
 
-    #[poise::command(prefix_command)]
+    #[poise::command(prefix_command, category="OtherCmd")]
     pub async fn reply(ctx: Context<'_>, msg_id: u64, args: Vec<String>) -> Result<(), Error>{
+        delete_message!(ctx);
         let s = args.join(" ");
         let message = ctx
             .http()
@@ -159,7 +160,7 @@ impl OtherCmd {
         Ok(())
     }
 
-    #[poise::command(prefix_command, user_cooldown=5)]
+    #[poise::command(prefix_command, user_cooldown=5, category="OtherCmd")]
     pub async fn spam(ctx: Context<'_>, args: Vec<String>) -> Result<(), Error>{
         delete_message!(ctx);
         let spam_times = args.last()
@@ -175,7 +176,7 @@ impl OtherCmd {
         Ok(())
     }
 
-    #[poise::command(prefix_command)]
+    #[poise::command(prefix_command, category="OtherCmd")]
     pub async fn brainrot(ctx: Context<'_>) -> Result<(), Error>{
         delete_message!(ctx);
         let mut s = String::new();

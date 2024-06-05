@@ -1,19 +1,27 @@
 mod cmd{
     pub mod other_cmd;
     pub mod contest_cmd;
+    pub mod help_cmd;
 }
 mod config;
 mod utils;
 
-use poise::serenity_prelude as serenity;
+use poise::{Command, serenity_prelude as serenity};
 use toml;
 use std::fs;
 use serenity::gateway::ActivityData;
+use crate::cmd::{other_cmd::OtherCmd, help_cmd::HelpCmd};
 use crate::utils::Cmd;
 
 struct Data {} // User data, which is stored and accessible in all command invocations
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
+
+fn commands() -> Vec<Command<Data, Error>>{
+    let mut commands = OtherCmd::commands();
+    commands.extend(HelpCmd::commands());
+    commands
+}
 
 #[tokio::main]
 async fn main() {
@@ -25,7 +33,7 @@ async fn main() {
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: cmd::other_cmd::OtherCmd::commands(),
+            commands: commands(),
             prefix_options: poise::PrefixFrameworkOptions {
                 prefix: Some(".".to_owned()),
                 ..Default::default()
