@@ -9,6 +9,7 @@ pub struct Config{
 #[derive(Deserialize)]
 pub struct Discord{
     pub token: String,
+    pub user_id: String,
 }
 
 #[derive(Deserialize)]

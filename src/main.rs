@@ -25,7 +25,7 @@ async fn main() {
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: cmd::other_cmd::OtherCmd::commands(),
+            commands: cmd::contest_cmd::ContestCmd::commands(),
             prefix_options: poise::PrefixFrameworkOptions {
                 prefix: Some(".".to_owned()),
                 ..Default::default()
