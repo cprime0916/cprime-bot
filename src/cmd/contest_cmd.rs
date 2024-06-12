@@ -1,4 +1,4 @@
-#![allow(dead_code, unused_variables, unreachable_code)]
+#![allow(dead_code, unused_variables, unreachable_code, unused_mut)]
 
 use std::cmp::min;
 use toml;
@@ -94,7 +94,7 @@ impl Cmd for ContestCmd{
 }
 
 impl ContestCmd{
-    pub fn construct_embed(current_page: i32, ctv: Vec<ContestTuple>) -> CreateEmbed{
+    pub fn construct_embed(current_page: i32, total_pages: i32, ctv: Vec<ContestTuple>) -> CreateEmbed{
         let start_index = current_page*PAGE_LEN;
         let end_index = min((current_page+1)*PAGE_LEN, ctv.len() as i32);
 
@@ -109,61 +109,76 @@ impl ContestCmd{
 
         let embed = CreateEmbed::new()
             .color(Colour::BLITZ_BLUE)
-            .title(format!("Upcoming Contests (Page {}/{})", current_page+1, PAGE_LEN))
+            .title(format!("Upcoming Contests (Page {}/{})", current_page+1, total_pages))
             .fields(fields.into_iter());
         embed
     }
-    #[poise::command(prefix_command, slash_command)]
-    pub async fn contests(ctx: Context<'_>) -> Result<(), Error>{
-        let contest_info = get_contests(vec![
-            "codeforces.com",
-            "atcoder.jp",
-            "codechef.com",
-            "leetcode.com",
-            "luogu.com.cn"
-        ]).await?;
+    /// Command for obtaining contest data,
+    /// you can choose a specific website to view recent contests too.
+    #[poise::command(prefix_command, slash_command, category="ContestCmd")]
+    pub async fn contests(ctx: Context<'_>, host: Option<String>) -> Result<(), Error>{
+        let mut contest_info: Vec<ContestTuple>;
+        if let Some(ref s) = host{
+            contest_info = get_contests(vec![host.clone().unwrap().as_ref()]).await?;
+        } else {
+            contest_info = get_contests(vec![
+                "codeforces.com",
+                "atcoder.jp",
+                "codechef.com",
+                "leetcode.com",
+                "luogu.com.cn"
+            ]).await?;
+        }
         let total_pages = (contest_info.len() as i32+PAGE_LEN-1)/PAGE_LEN;
         let mut page = 0;
         let emoji_list = vec!['⬅', '➡'];
         let left_arrow = String::from("⬅");
         let right_arrow = String::from("➡");
+        if contest_info.len() != 0 {
+            let message = CreateMessage::new()
+                .embed(ContestCmd::construct_embed(page, total_pages, contest_info.clone()))
+                .reactions(emoji_list.clone().into_iter());
+            let mut msg = ctx.channel_id().send_message(&ctx, message).await?;
 
-        let message = CreateMessage::new()
-            .embed(ContestCmd::construct_embed(page, contest_info.clone()))
-            .reactions(emoji_list.clone().into_iter());
-        let mut msg = ctx.channel_id().send_message(&ctx, message).await?;
-
-        loop {
-            match msg.await_reaction(&ctx).await {
-                Some(reaction) => match reaction.emoji {
-                    ReactionType::Unicode(ref emoji) if emoji == &right_arrow => {
-                        msg.delete_reaction(&ctx, reaction.user_id, emoji_list[1])
-                            .await
-                            .expect(walao!(expect, find_react));
-                        if page < total_pages - 1 {
-                            page += 1;
-                            let builder = EditMessage::new()
-                                .embed(ContestCmd::construct_embed(page, contest_info.clone()));
-                            msg.edit(ctx, builder).await?;
+            loop {
+                match msg.await_reaction(&ctx).await {
+                    Some(reaction) => match reaction.emoji {
+                        ReactionType::Unicode(ref emoji) if emoji == &right_arrow => {
+                            msg.delete_reaction(&ctx, reaction.user_id, emoji_list[1])
+                                .await
+                                .expect(walao!(expect, find_react));
+                            if page < total_pages - 1 {
+                                page += 1;
+                                let builder = EditMessage::new()
+                                    .embed(ContestCmd::construct_embed(page, total_pages, contest_info.clone()));
+                                msg.edit(ctx, builder).await?;
+                            }
                         }
-                    }
-                    ReactionType::Unicode(ref emoji) if emoji == &left_arrow => {
-                        msg.delete_reaction(&ctx, reaction.user_id, emoji_list[0])
-                            .await
-                            .expect(walao!(expect, find_react));
-                        if page > 0 {
-                            page -= 1;
-                            let builder = EditMessage::new()
-                                .embed(ContestCmd::construct_embed(page, contest_info.clone()));
-                            msg.edit(ctx, builder).await?;
+                        ReactionType::Unicode(ref emoji) if emoji == &left_arrow => {
+                            msg.delete_reaction(&ctx, reaction.user_id, emoji_list[0])
+                                .await
+                                .expect(walao!(expect, find_react));
+                            if page > 0 {
+                                page -= 1;
+                                let builder = EditMessage::new()
+                                    .embed(ContestCmd::construct_embed(page, total_pages, contest_info.clone()));
+                                msg.edit(ctx, builder).await?;
+                            }
                         }
+                        _ => {}
+                    },
+                    None => {
+                        break;
                     }
-                    _ => {}
-                },
-                None => {
-                    break;
                 }
             }
+        } else {
+            let message = CreateMessage::new()
+                .embed(CreateEmbed::new()
+                    .color(Colour::RED)
+                    .title("WALAO!")
+                    .description("Don't try to troll 💀"));
+            let mut msg = ctx.channel_id().send_message(&ctx, message).await?;
         }
         Ok(())
     }
