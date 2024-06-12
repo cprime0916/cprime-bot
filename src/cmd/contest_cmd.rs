@@ -1,5 +1,6 @@
 #![allow(dead_code, unused_variables, unreachable_code)]
 
+use std::cmp::min;
 use toml;
 use reqwest::Client;
 use reqwest::StatusCode;
@@ -7,6 +8,8 @@ use serde_json as json;
 use chrono::{DateTime, FixedOffset, NaiveDateTime};
 use std::fs;
 use poise::Command;
+use serenity::all::{CreateEmbed, CreateMessage};
+use serenity::model::Colour;
 use crate::config::Config;
 use crate::utils::{Cmd, ContestInfo};
 use crate::{Context, Data, Error, walao};
@@ -16,7 +19,9 @@ const PAGE_LEN: i32 = 5;
 
 
 type ContestTuple = (usize, String, String, DateTime<FixedOffset>, String, String);
+type Field<'a> = (&'a String, String, bool);
 pub(crate) struct ContestCmd;
+pub(crate) struct ContestEventHandler;
 
 async fn get_contests(hosts: Vec<&str>) -> Result<Vec<ContestTuple>, Error> {
     let toml_info = fs::read_to_string("config.toml")?;
@@ -51,7 +56,7 @@ async fn get_contests(hosts: Vec<&str>) -> Result<Vec<ContestTuple>, Error> {
                     for contest_data in contest_objects {
                         let duration = contest_data.duration.unwrap_or(0) / 60;
                         let event = contest_data.event.as_deref().unwrap();
-                        let host = contest_data.host.as_deref().unwrap();
+                        let href = contest_data.href.as_deref().unwrap();
                         let start_str = contest_data.start.as_deref().unwrap();
                         let end_str = contest_data.end.as_deref().unwrap();
 
@@ -70,7 +75,7 @@ async fn get_contests(hosts: Vec<&str>) -> Result<Vec<ContestTuple>, Error> {
                         let start = format!("{}", start_utc8);
                         let end = format!("{}", end_utc8);
 
-                        contests.push((duration, event.to_string(), host.to_string(), start_utc8_sort, start, end));
+                        contests.push((duration, event.to_string(), href.to_string(), start_utc8_sort, start, end));
                     }
                     contests.sort_by_key(|contest| contest.3);
                 }
@@ -91,16 +96,43 @@ impl Cmd for ContestCmd{
 }
 
 impl ContestCmd{
-    fn construct_embed(ctv: Vec<ContestTuple>) -> !{
+    pub fn construct_embed(current_page: i32, ctv: Vec<ContestTuple>) -> CreateEmbed{
+        let start_index = current_page*PAGE_LEN;
+        let end_index = min((current_page+1)*PAGE_LEN, ctv.len() as i32);
 
-        todo!("Construct embed");
+        let mut fields: Vec<Field> = Vec::new();
+        for index in start_index..end_index{
+            let contest = &ctv[index as usize];
+            let value = format!("Start Time: {}\n\
+            End Time: {}\n\
+            [Contest Link]({})", contest.4, contest.5, contest.2);
+            fields.push((&contest.1, value,  false));
+        }
+
+        let embed = CreateEmbed::new()
+            .color(Colour::BLITZ_BLUE)
+            .title(format!("Upcoming Contests (Page {}/{})", current_page+1, PAGE_LEN))
+            .fields(fields.into_iter());
+        embed
     }
-    #[poise::command(prefix_command)]
+    #[poise::command(prefix_command, slash_command)]
     pub async fn contests(ctx: Context<'_>) -> Result<(), Error>{
-        ctx.say("cprime still developing").await?;
-        let contest_info = get_contests(vec!["codeforces.com", "atcoder.jp", "codechef.com", "leetcode.com",]).await?;
+        let contest_info = get_contests(vec![
+            "codeforces.com",
+            "atcoder.jp",
+            "codechef.com",
+            "leetcode.com",
+            "luogu.com.cn"
+        ]).await?;
         let total_pages = (contest_info.len() as i32+PAGE_LEN-1)/PAGE_LEN;
-        todo!("Implement embed message logic here");
+        let page = 0;
+        let emoji_list = vec!['⬅', '➡'];
+        let message = CreateMessage::new()
+            .embed(ContestCmd::construct_embed(page, contest_info.clone()))
+            .reactions(emoji_list.into_iter());
+
+        let msg = ctx.channel_id().send_message(&ctx, message).await?;
+        todo!("Implement add reaction event listener");
         Ok(())
     }
 }
