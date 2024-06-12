@@ -8,7 +8,7 @@ use serde_json as json;
 use chrono::{DateTime, FixedOffset, NaiveDateTime};
 use std::fs;
 use poise::Command;
-use serenity::all::{CreateEmbed, CreateMessage};
+use serenity::all::{CreateEmbed, CreateMessage, EditMessage, ReactionType};
 use serenity::model::Colour;
 use crate::config::Config;
 use crate::utils::{Cmd, ContestInfo};
@@ -16,7 +16,6 @@ use crate::{Context, Data, Error, walao};
 
 const UTC8: i32 = 3600 * 8;
 const PAGE_LEN: i32 = 5;
-
 
 type ContestTuple = (usize, String, String, DateTime<FixedOffset>, String, String);
 type Field<'a> = (&'a String, String, bool);
@@ -125,14 +124,48 @@ impl ContestCmd{
             "luogu.com.cn"
         ]).await?;
         let total_pages = (contest_info.len() as i32+PAGE_LEN-1)/PAGE_LEN;
-        let page = 0;
+        let mut page = 0;
         let emoji_list = vec!['⬅', '➡'];
+        let left_arrow = String::from("⬅");
+        let right_arrow = String::from("➡");
+
         let message = CreateMessage::new()
             .embed(ContestCmd::construct_embed(page, contest_info.clone()))
-            .reactions(emoji_list.into_iter());
+            .reactions(emoji_list.clone().into_iter());
+        let mut msg = ctx.channel_id().send_message(&ctx, message).await?;
 
-        let msg = ctx.channel_id().send_message(&ctx, message).await?;
-        todo!("Implement add reaction event listener");
+        loop {
+            match msg.await_reaction(&ctx).await {
+                Some(reaction) => match reaction.emoji {
+                    ReactionType::Unicode(ref emoji) if emoji == &right_arrow => {
+                        msg.delete_reaction(&ctx, reaction.user_id, emoji_list[1])
+                            .await
+                            .expect(walao!(expect, find_react));
+                        if page < total_pages - 1 {
+                            page += 1;
+                            let builder = EditMessage::new()
+                                .embed(ContestCmd::construct_embed(page, contest_info.clone()));
+                            msg.edit(ctx, builder).await?;
+                        }
+                    }
+                    ReactionType::Unicode(ref emoji) if emoji == &left_arrow => {
+                        msg.delete_reaction(&ctx, reaction.user_id, emoji_list[0])
+                            .await
+                            .expect(walao!(expect, find_react));
+                        if page > 0 {
+                            page -= 1;
+                            let builder = EditMessage::new()
+                                .embed(ContestCmd::construct_embed(page, contest_info.clone()));
+                            msg.edit(ctx, builder).await?;
+                        }
+                    }
+                    _ => {}
+                },
+                None => {
+                    break;
+                }
+            }
+        }
         Ok(())
     }
 }

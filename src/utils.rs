@@ -56,6 +56,9 @@ macro_rules! walao{
     (expect, parse) => {
         "Walao! Parsing error"
     };
+    (expect, find_react) => {
+        "Walao! Failed to find reaction"
+    };
     (_) => {
         eprintln!("Walao! This error siao one")
     };
