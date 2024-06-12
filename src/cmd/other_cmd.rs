@@ -1,12 +1,12 @@
 #![allow(unreachable_code, unused_variables)]
 
-use crate::{Context, Data, delete_message, Error, error_print};
+use crate::{config, Context, Data, delete_message, Error, walao};
 use rand::thread_rng;
 use rand::Rng;
 use poise::{Command};
 use crate::utils::Cmd;
 use poise::serenity_prelude as serenity;
-
+use std::fs;
 
 const LEFT_PRAYER: &str = "O Left,\
                             \nLord of AK,\
@@ -85,7 +85,7 @@ impl OtherCmd {
                 ctx.say(msg).await?;
             }
             _ => {
-                error_print!(ctx, "quote", "How the fuck is it not in the range?");
+                walao!(ctx, not_in_range);
             }
         }
         Ok(())
@@ -112,7 +112,7 @@ impl OtherCmd {
                 ctx.say("Real").await?;
             }
             _ => {
-                error_print!(ctx, "agree", "How the fuck is it not in the range?");
+                walao!(ctx, not_in_range);
             }
         }
         Ok(())
@@ -142,7 +142,7 @@ impl OtherCmd {
                 ctx.say("no u").await?;
             }
             _ => {
-                error_print!(ctx, "disagree", "How the fuck is it not in the range?");
+                walao!(ctx, not_in_range);
             }
         }
         Ok(())
