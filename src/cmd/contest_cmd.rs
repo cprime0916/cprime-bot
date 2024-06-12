@@ -20,7 +20,6 @@ const PAGE_LEN: i32 = 5;
 type ContestTuple = (usize, String, String, DateTime<FixedOffset>, String, String);
 type Field<'a> = (&'a String, String, bool);
 pub(crate) struct ContestCmd;
-pub(crate) struct ContestEventHandler;
 
 async fn get_contests(hosts: Vec<&str>) -> Result<Vec<ContestTuple>, Error> {
     let toml_info = fs::read_to_string("config.toml")?;
