@@ -1,6 +1,6 @@
 use poise::Command;
 use crate::{Context, Data, Error};
-use crate::utils::Cmd;
+use crate::utils::traits::Cmd;
 
 pub(crate) struct HelpCmd;
 

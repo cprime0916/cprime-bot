@@ -11,7 +11,7 @@ use poise::Command;
 use serenity::all::{CreateEmbed, CreateMessage, EditMessage, ReactionType};
 use serenity::model::Colour;
 use crate::config::Config;
-use crate::utils::{Cmd, ContestInfo};
+use crate::utils::{traits::Cmd, deserializer::ContestInfo};
 use crate::{Context, Data, Error, walao};
 
 const UTC8: i32 = 3600 * 8;
@@ -115,7 +115,7 @@ impl ContestCmd{
     }
     /// Command for obtaining contest data,
     /// you can choose a specific website to view recent contests too.
-    #[poise::command(prefix_command, slash_command, category="ContestCmd")]
+    #[poise::command(prefix_command, slash_command, category="ContestCmd", aliases("contest", "ct"))]
     pub async fn contests(ctx: Context<'_>, host: Option<String>) -> Result<(), Error>{
         let mut contest_info: Vec<ContestTuple>;
         if let Some(ref s) = host{

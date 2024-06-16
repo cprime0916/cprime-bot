@@ -4,7 +4,7 @@ use crate::{config, Context, Data, delete_message, Error, walao};
 use rand::thread_rng;
 use rand::Rng;
 use poise::{Command};
-use crate::utils::Cmd;
+use crate::utils::traits::Cmd;
 use poise::serenity_prelude as serenity;
 use std::fs;
 

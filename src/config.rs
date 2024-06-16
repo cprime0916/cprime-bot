@@ -4,6 +4,7 @@ use serde::Deserialize;
 pub struct Config{
     pub discord: Discord,
     pub clist: Clist,
+    pub tetr: Tetr,
 }
 
 #[derive(Deserialize)]
@@ -17,4 +18,9 @@ pub struct Clist{
     pub username: String,
     pub url: String,
     pub key: String,
+}
+
+#[derive(Deserialize)]
+pub struct Tetr{
+    pub url: String,
 }

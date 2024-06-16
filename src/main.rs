@@ -2,17 +2,22 @@ mod cmd{
     pub mod other_cmd;
     pub mod contest_cmd;
     pub mod help_cmd;
-
+    pub mod tetr_cmd;
 }
 mod config;
-mod utils;
+mod utils{
+    pub mod deserializer;
+    pub mod macros;
+    pub mod traits;
+}
 
 use poise::{Command, serenity_prelude as serenity};
 use toml;
 use std::fs;
 use serenity::gateway::ActivityData;
 use crate::cmd::{other_cmd::OtherCmd, help_cmd::HelpCmd, contest_cmd::ContestCmd};
-use crate::utils::Cmd;
+use crate::cmd::tetr_cmd::TetrCmd;
+use crate::utils::traits::Cmd;
 
 struct Data {} // User data, which is stored and accessible in all command invocations
 type Error = Box<dyn std::error::Error + Send + Sync>;
@@ -22,6 +27,7 @@ fn commands() -> Vec<Command<Data, Error>>{
     let mut commands = OtherCmd::commands();
     commands.extend(HelpCmd::commands());
     commands.extend(ContestCmd::commands());
+    commands.extend(TetrCmd::commands());
     commands
 }
 
