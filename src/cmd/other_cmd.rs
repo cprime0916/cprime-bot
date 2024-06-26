@@ -33,7 +33,7 @@ impl Cmd for OtherCmd{
 }
 impl OtherCmd {
     #[poise::command(prefix_command, category="OtherCmd")]
-    pub async fn say(
+    async fn say(
         ctx: Context<'_>,
         args: Vec<String>,
     ) -> Result<(), Error> {
@@ -54,7 +54,7 @@ impl OtherCmd {
     }
 
     #[poise::command(prefix_command, category="OtherCmd")]
-    pub async fn quote(ctx: Context<'_>) -> Result<(), Error>{
+    async fn quote(ctx: Context<'_>) -> Result<(), Error>{
         delete_message!(ctx);
         let rand = thread_rng().gen_range(1..7);
         match rand{
@@ -92,7 +92,7 @@ impl OtherCmd {
     }
 
     #[poise::command(prefix_command, category="OtherCmd")]
-    pub async fn agree(ctx: Context<'_>) -> Result<(), Error>{
+    async fn agree(ctx: Context<'_>) -> Result<(), Error>{
         delete_message!(ctx);
         let rand = thread_rng().gen_range(1..6);
         match rand{
@@ -119,7 +119,7 @@ impl OtherCmd {
     }
 
     #[poise::command(prefix_command, category="OtherCmd")]
-    pub async fn disagree(ctx: Context<'_>) -> Result<(), Error>{
+    async fn disagree(ctx: Context<'_>) -> Result<(), Error>{
         delete_message!(ctx);
         let rand = thread_rng().gen_range(1..7);
         match rand{
@@ -149,7 +149,7 @@ impl OtherCmd {
     }
 
     #[poise::command(prefix_command, category="OtherCmd")]
-    pub async fn reply(ctx: Context<'_>, msg_id: u64, args: Vec<String>) -> Result<(), Error>{
+    async fn reply(ctx: Context<'_>, msg_id: u64, args: Vec<String>) -> Result<(), Error>{
         delete_message!(ctx);
         let s = args.join(" ");
         let message = ctx
@@ -161,7 +161,7 @@ impl OtherCmd {
     }
 
     #[poise::command(prefix_command, user_cooldown=5, category="OtherCmd")]
-    pub async fn spam(ctx: Context<'_>, args: Vec<String>) -> Result<(), Error>{
+    async fn spam(ctx: Context<'_>, args: Vec<String>) -> Result<(), Error>{
         delete_message!(ctx);
         let spam_times = args.last()
             .unwrap()
@@ -177,7 +177,7 @@ impl OtherCmd {
     }
 
     #[poise::command(prefix_command, category="OtherCmd")]
-    pub async fn brainrot(ctx: Context<'_>) -> Result<(), Error>{
+    async fn brainrot(ctx: Context<'_>) -> Result<(), Error>{
         delete_message!(ctx);
         let mut s = String::new();
         while s.len() < DISCORD_CHAR_LIMIT{

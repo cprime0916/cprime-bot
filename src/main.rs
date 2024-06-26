@@ -9,6 +9,7 @@ mod utils{
     pub mod deserializer;
     pub mod macros;
     pub mod traits;
+    pub mod types;
 }
 
 use poise::{Command, serenity_prelude as serenity};

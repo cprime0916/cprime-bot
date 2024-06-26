@@ -22,5 +22,6 @@ pub struct Clist{
 
 #[derive(Deserialize)]
 pub struct Tetr{
-    pub url: String,
+    pub general_url: String,
+    pub user_url: String,
 }

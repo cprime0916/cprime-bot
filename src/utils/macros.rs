@@ -13,7 +13,7 @@ macro_rules! delete_message {
 /// The walao macro is used as the debug print macro for me to find issues more easily.
 /// It prints and sends the messages depending on the different arguments
 /// ## Usage
-/// when parsing json error: `walao!(parse, json);`
+/// when parsing json error: `walao!(parse, FileType::Json);`
 ///
 /// other use cases can be seen in the code below.
 /// If the error is not defined, the `_` symbol will be used instead, like this
@@ -25,11 +25,8 @@ macro_rules! walao {
     (status_code_error) =>  {
         eprintln!("Walao! Status code error, skill issue one");
     };
-    (parse, json) => {
-        eprintln!("Walao! Can't even parse json files! Skill issue one");
-    };
-    (parse, toml) => {
-        eprintln!("Walao! Can't even parse toml files! Skill issue one");
+    (parse, $ft:expr) => {
+        eprintln!("Walao! Can't even parse {} files! Skill issue one", $ft);
     };
     ($ctx:expr, parse_config) => {
         let toml_info = fs::read_to_string("config.toml").unwrap();
@@ -45,13 +42,14 @@ macro_rules! walao {
         let error_message = format!("# Walao!\n<@{}> skill issue one lah! Not even in range", config_toml.discord.user_id);
         $ctx.say(error_message).await?;
     };
-    (expect, parse) => {
-        "Walao! Parsing error"
+    (expect, $err:expr) => {
+        
+        format!("Walao! {}", $err)
     };
-    (expect, find_react) => {
-        "Walao! Failed to find reaction"
+    (unwrap, parse) => {
+        String::from("Walao! Parsing Error")
     };
     (_) => {
-        eprintln!("Walao! This error siao one")
+        eprintln!("Walao! This error siao eh, not even defined one")
     };
 }

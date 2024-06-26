@@ -13,7 +13,7 @@ impl Cmd for HelpCmd{
 impl HelpCmd{
     /// Assisting you w/ this command
     #[poise::command(prefix_command, slash_command, category="HelpCmd")]
-    pub async fn help(
+    async fn help(
         ctx: Context<'_>, #[description="Command you need help with"]
         command: Option<String>
     ) -> Result<(), Error>{
@@ -21,6 +21,7 @@ impl HelpCmd{
                 extra_text_at_bottom: "\
                 Type .help <cmd> for more info on a command.
                 You can edit your message to the bot and the bot will edit its response.",
+                
                 ..Default::default()
         };
         poise::builtins::help(ctx, command.as_deref(), config).await?;

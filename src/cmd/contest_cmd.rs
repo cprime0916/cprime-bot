@@ -10,9 +10,11 @@ use std::fs;
 use poise::Command;
 use serenity::all::{CreateEmbed, CreateMessage, EditMessage, ReactionType};
 use serenity::model::Colour;
+use tokio::time::{sleep, Duration};
 use crate::config::Config;
 use crate::utils::{traits::Cmd, deserializer::ContestInfo};
 use crate::{Context, Data, Error, walao};
+use crate::utils::types::ExpectError;
 
 const UTC8: i32 = 3600 * 8;
 const PAGE_LEN: i32 = 5;
@@ -70,8 +72,8 @@ async fn get_contests(hosts: Vec<&str>) -> Result<Vec<ContestTuple>, Error> {
                             .with_timezone(&FixedOffset::east_opt(UTC8).unwrap())
                             .format("%d-%m-%Y %H:%M:%S");
 
-                        let start = format!("{}", start_utc8);
-                        let end = format!("{}", end_utc8);
+                        let start = format!("{start_utc8}");
+                        let end = format!("{end_utc8}");
 
                         contests.push((duration, event.to_string(), href.to_string(), start_utc8_sort, start, end));
                     }
@@ -94,7 +96,7 @@ impl Cmd for ContestCmd{
 }
 
 impl ContestCmd{
-    pub fn construct_embed(current_page: i32, total_pages: i32, ctv: Vec<ContestTuple>) -> CreateEmbed{
+    fn construct_embed(current_page: i32, total_pages: i32, ctv: Vec<ContestTuple>) -> CreateEmbed{
         let start_index = current_page*PAGE_LEN;
         let end_index = min((current_page+1)*PAGE_LEN, ctv.len() as i32);
 
@@ -110,13 +112,14 @@ impl ContestCmd{
         let embed = CreateEmbed::new()
             .color(Colour::BLITZ_BLUE)
             .title(format!("Upcoming Contests (Page {}/{})", current_page+1, total_pages))
-            .fields(fields.into_iter());
+            .fields(fields);
+
         embed
     }
     /// Command for obtaining contest data,
     /// you can choose a specific website to view recent contests too.
     #[poise::command(prefix_command, slash_command, category="ContestCmd", aliases("contest", "ct"))]
-    pub async fn contests(ctx: Context<'_>, host: Option<String>) -> Result<(), Error>{
+    async fn contests(ctx: Context<'_>, host: Option<String>) -> Result<(), Error>{
         let mut contest_info: Vec<ContestTuple>;
         if let Some(ref s) = host{
             contest_info = get_contests(vec![host.clone().unwrap().as_ref()]).await?;
@@ -134,51 +137,50 @@ impl ContestCmd{
         let emoji_list = vec!['⬅', '➡'];
         let left_arrow = String::from("⬅");
         let right_arrow = String::from("➡");
-        if contest_info.len() != 0 {
-            let message = CreateMessage::new()
-                .embed(ContestCmd::construct_embed(page, total_pages, contest_info.clone()))
-                .reactions(emoji_list.clone().into_iter());
-            let mut msg = ctx.channel_id().send_message(&ctx, message).await?;
-
-            loop {
-                match msg.await_reaction(&ctx).await {
-                    Some(reaction) => match reaction.emoji {
-                        ReactionType::Unicode(ref emoji) if emoji == &right_arrow => {
-                            msg.delete_reaction(&ctx, reaction.user_id, emoji_list[1])
-                                .await
-                                .expect(walao!(expect, find_react));
-                            if page < total_pages - 1 {
-                                page += 1;
-                                let builder = EditMessage::new()
-                                    .embed(ContestCmd::construct_embed(page, total_pages, contest_info.clone()));
-                                msg.edit(ctx, builder).await?;
-                            }
-                        }
-                        ReactionType::Unicode(ref emoji) if emoji == &left_arrow => {
-                            msg.delete_reaction(&ctx, reaction.user_id, emoji_list[0])
-                                .await
-                                .expect(walao!(expect, find_react));
-                            if page > 0 {
-                                page -= 1;
-                                let builder = EditMessage::new()
-                                    .embed(ContestCmd::construct_embed(page, total_pages, contest_info.clone()));
-                                msg.edit(ctx, builder).await?;
-                            }
-                        }
-                        _ => {}
-                    },
-                    None => {
-                        break;
-                    }
-                }
-            }
-        } else {
+        if contest_info.is_empty() {
             let message = CreateMessage::new()
                 .embed(CreateEmbed::new()
                     .color(Colour::RED)
                     .title("WALAO!")
                     .description("Don't try to troll 💀"));
             let mut msg = ctx.channel_id().send_message(&ctx, message).await?;
+        } else {
+            let message = CreateMessage::new()
+                .embed(ContestCmd::construct_embed(page, total_pages, contest_info.clone()))
+                .reactions(emoji_list.clone().into_iter());
+            let mut msg = ctx.channel_id().send_message(&ctx, message).await?;
+
+            let w: String = ExpectError::ReactionNotFound.into();
+            sleep(Duration::from_millis(100)).await;
+
+            while let Some(reaction) = msg.await_reaction(ctx).await {
+                match reaction.emoji {
+                    ReactionType::Unicode(ref emoji) if emoji == &right_arrow => {
+                        
+                        msg.delete_reaction(&ctx, reaction.user_id, emoji_list[1])
+                            .await
+                            .expect(walao!(expect, w).as_ref());
+                        if page < total_pages - 1 {
+                            page += 1;
+                            let builder = EditMessage::new()
+                                .embed(ContestCmd::construct_embed(page, total_pages, contest_info.clone()));
+                            msg.edit(ctx, builder).await?;
+                        }
+                    }
+                    ReactionType::Unicode(ref emoji) if emoji == &left_arrow => {
+                        msg.delete_reaction(&ctx, reaction.user_id, emoji_list[0])
+                            .await
+                            .expect(walao!(expect, w).as_ref());
+                        if page > 0 {
+                            page -= 1;
+                            let builder = EditMessage::new()
+                                .embed(ContestCmd::construct_embed(page, total_pages, contest_info.clone()));
+                            msg.edit(ctx, builder).await?;
+                        }
+                    }
+                    _ => {}
+                }
+            }
         }
         Ok(())
     }

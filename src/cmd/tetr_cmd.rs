@@ -15,14 +15,15 @@ impl Cmd for TetrCmd{
 
 impl TetrCmd{
     #[poise::command(prefix_command)]
-    pub async fn player(ctx: Context<'_>, username: String) -> Result<(), Error>{
-        ctx.say("# skibidi toilet\nMaking api fetch cmd").await?;
+    async fn player(ctx: Context<'_>, username: String) -> Result<(), Error>{
+        ctx.say("# Walao\nMaking progress for implementing tetr command").await?;
         let toml_info = fs::read_to_string("config.toml")?;
         let config_toml: Config = toml::from_str(&toml_info)?;
-        let mut user_url = config_toml.tetr.url;
+        let mut user_url = config_toml.tetr.user_url;
         user_url.push_str(username.as_ref());
         let response = reqwest::get(user_url).await?;
-        println!("{:?}", &response.text().await?);
+        let s = format!("{response:#?}");
+        ctx.say(s).await?;
         Ok(())
     }
 }
