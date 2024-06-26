@@ -45,14 +45,14 @@ pub struct TetrInfo {
 }
 
 impl TetrInfo {
-    fn result(&self) -> Result<bool, String> {
+    pub fn result(&self) -> Result<bool, String> {
         if let Some(s) = &self.error {
             return Err(s.to_owned());
         }
         Ok(self.success)
     }
 
-    fn user(&self) -> Option<TetrUser> {
+    pub fn user(&self) -> Option<TetrUser> {
         if let Some(d) = &self.data {
             return Some(d.user.clone());
         }
@@ -99,31 +99,36 @@ pub struct TetrUser {
 }
 
 impl TetrUser {
-    fn id(&self) -> String{
+    pub fn id(&self) -> String {
         self.id.clone().unwrap()
     }
-    fn username(&self) -> String {
+
+    pub fn username(&self) -> String {
         self.username
             .clone()
             .unwrap_or(walao!(unwrap, parse))
     }
-    fn role(&self) -> String {
+
+    pub fn role(&self) -> String {
         self.role
             .clone()
             .unwrap_or(walao!(unwrap, parse))
     }
-    fn timestamp(&self) -> String {
+
+    pub fn timestamp(&self) -> String {
         self.ts
             .clone()
             .unwrap_or(walao!(unwrap, parse))
     }
-    fn bot_info(&self) -> Option<String> {
+
+    pub fn bot_info(&self) -> Option<String> {
         if let Some(s) = self.botmaster.clone() {
             return Some(s);
         }
         None
     }
-    fn get_badges(&self) -> Option<Vec<Badge>> {
+
+    pub fn get_badges(&self) -> Option<Vec<Badge>> {
         if self.badges.is_empty() {
             return None;
         }
@@ -133,17 +138,20 @@ impl TetrUser {
         }
         Some(v)
     }
-    fn stats(&self) -> (f64, isize, isize, f64) {
+
+    pub fn stats(&self) -> (f64, isize, isize, f64) {
         (self.xp.unwrap(), self.gamesplayed.unwrap(), self.gameswon.unwrap(), self.gametime.unwrap())
     }
-    fn country(&self) -> (String, String) {
+
+    pub fn country(&self) -> (String, String) {
         let s = self.country
             .clone()
             .unwrap_or(String::from("Foobarland"));
-        let t = format!(":flag_{s}");
+        let t = format!(":flag_{}:", s.to_ascii_lowercase());
         (s, t)
     }
-    fn league(&self) -> League{
+
+    pub fn league(&self) -> League {
         let w: String = ExpectError::ParseError.into();
         self.league.clone().expect(walao!(expect, w).as_ref())
     }
@@ -180,10 +188,10 @@ pub struct League {
 }
 
 impl League {
-    fn games(&self) -> (usize, usize){
+    pub fn games(&self) -> (usize, usize){
         (self.gameswon.unwrap(), self.gamesplayed.unwrap())
     }
-    fn rank_info(&self) -> (String, String, String, String){
+    pub fn rank_info(&self) -> (String, String, String, String){
         (
             self.rank.clone().unwrap(),
             self.bestrank.clone().unwrap(),
@@ -191,10 +199,10 @@ impl League {
             self.prev_rank.clone().unwrap()
         )
     }
-    fn percentile(&self) -> f64{
+    pub fn percentile(&self) -> f64{
         self.percentile.unwrap_or(10.0)*100.0
     }
-    fn glicko(&self) -> (f64, f64){
+    pub fn glicko(&self) -> (f64, f64){
         (self.glicko.unwrap(), self.rd.unwrap())
     }
 }
