@@ -1,26 +1,16 @@
-mod cmd{
-    pub mod other_cmd;
-    pub mod contest_cmd;
-    pub mod help_cmd;
-    pub mod tetr_cmd;
-}
-mod config;
-mod utils{
-    pub mod deserializer;
-    pub mod macros;
-    pub mod traits;
-    pub mod types;
-}
+pub mod cmd;
+pub mod config;
+pub mod utils;
 
 use poise::{Command, serenity_prelude as serenity};
 use toml;
 use std::fs;
 use serenity::gateway::ActivityData;
-use crate::cmd::{other_cmd::OtherCmd, help_cmd::HelpCmd, contest_cmd::ContestCmd};
-use crate::cmd::tetr_cmd::TetrCmd;
-use crate::utils::traits::Cmd;
+use cmd::{other_cmd::OtherCmd, help_cmd::HelpCmd, contest_cmd::ContestCmd};
+use cmd::tetr_cmd::TetrCmd;
+use utils::traits::Cmd;
 
-struct Data {} // User data, which is stored and accessible in all command invocations
+pub struct Data {} // User data, which is stored and accessible in all command invocations
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
 

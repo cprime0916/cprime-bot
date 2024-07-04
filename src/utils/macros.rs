@@ -10,16 +10,21 @@ macro_rules! delete_message {
 
 /// # Walao macro
 /// ## Overview
-/// The walao macro is used as the debug print macro for me to find issues more easily.
-/// It prints and sends the messages depending on the different arguments
+/// The walao macro is used as the debug print macro to handle errors more easily & efficiently.
+/// It prints or sends the messages depending on the different arguments
 /// ## Usage
-/// when parsing json error: `walao!(parse, FileType::Json);`
-///
-/// other use cases can be seen in the code below.
-/// If the error is not defined, the `_` symbol will be used instead, like this
+/// Parsing file type error: `walao!(parse, YourFileType)`
+/// 
+/// `NotInRange` error: `walao!(ctx, not_in_range)`
+/// 
+/// Customisable error message (expect): `walao!(expect, $err)`
+/// 
+/// Other use cases include a parsing error message for `unwrap()` methods in options/results.
+/// If the error is not defined, no argument should be given, like this
 /// ```
-/// walao!(_);
+/// walao!();
 /// ```
+/// And this outputs the unit error message: ```Walao! This error siao eh, not even defined one```
 #[macro_export]
 macro_rules! walao {
     (status_code_error) =>  {
@@ -43,13 +48,12 @@ macro_rules! walao {
         $ctx.say(error_message).await?;
     };
     (expect, $err:expr) => {
-        
         format!("Walao! {}", $err)
     };
     (unwrap, parse) => {
         String::from("Walao! Parsing Error")
     };
-    (_) => {
+    () => {
         eprintln!("Walao! This error siao eh, not even defined one")
     };
 }

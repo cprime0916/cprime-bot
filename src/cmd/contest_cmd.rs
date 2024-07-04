@@ -14,10 +14,8 @@ use tokio::time::{sleep, Duration};
 use crate::config::Config;
 use crate::utils::{traits::Cmd, deserializer::ContestInfo};
 use crate::{Context, Data, Error, walao};
+use crate::utils::constant::*;
 use crate::utils::types::ExpectError;
-
-const UTC8: i32 = 3600 * 8;
-const PAGE_LEN: i32 = 5;
 
 type ContestTuple = (usize, String, String, DateTime<FixedOffset>, String, String);
 type Field<'a> = (&'a String, String, bool);
@@ -110,7 +108,7 @@ impl ContestCmd{
         }
 
         let embed = CreateEmbed::new()
-            .color(Colour::BLITZ_BLUE)
+            .color(NAVY_BLUE)
             .title(format!("Upcoming Contests (Page {}/{})", current_page+1, total_pages))
             .fields(fields);
 

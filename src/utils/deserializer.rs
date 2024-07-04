@@ -3,6 +3,7 @@
 use serde::Deserialize;
 use crate::utils::types::ExpectError;
 use crate::walao;
+use std::fmt;
 
 #[derive(Deserialize, Debug)]
 pub struct ContestInfo {
@@ -146,8 +147,8 @@ impl TetrUser {
     pub fn country(&self) -> (String, String) {
         let s = self.country
             .clone()
-            .unwrap_or(String::from("Foobarland"));
-        let t = format!(":flag_{}:", s.to_ascii_lowercase());
+            .unwrap_or(String::from("null"));
+        let t = if s.as_str() == "null" { String::from("null") } else { format!(":flag_{}:", s.to_ascii_lowercase()) };
         (s, t)
     }
 
@@ -162,6 +163,12 @@ pub struct Badge {
     pub id: Option<String>,
     pub label: Option<String>,
     pub ts: Option<String>,
+}
+
+impl fmt::Display for Badge {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "ID: {} Label: {} Timestamp (UTC): {}\n", self.clone().id.unwrap_or(walao!(unwrap, parse)), self.clone().label.unwrap_or(walao!(unwrap, parse)), self.clone().ts.unwrap_or(walao!(unwrap, parse)))
+    }
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -188,10 +195,10 @@ pub struct League {
 }
 
 impl League {
-    pub fn games(&self) -> (usize, usize){
+    pub fn games(&self) -> (usize, usize) {
         (self.gameswon.unwrap(), self.gamesplayed.unwrap())
     }
-    pub fn rank_info(&self) -> (String, String, String, String){
+    pub fn rank_info(&self) -> (String, String, String, String) {
         (
             self.rank.clone().unwrap(),
             self.bestrank.clone().unwrap(),
@@ -199,10 +206,10 @@ impl League {
             self.prev_rank.clone().unwrap()
         )
     }
-    pub fn percentile(&self) -> f64{
-        self.percentile.unwrap_or(10.0)*100.0
+    pub fn percentile(&self) -> f64 {
+        self.percentile.unwrap_or(10.0) * 100.0
     }
-    pub fn glicko(&self) -> (f64, f64){
+    pub fn glicko(&self) -> (f64, f64) {
         (self.glicko.unwrap(), self.rd.unwrap())
     }
 }
