@@ -1,4 +1,4 @@
-#![allow(unreachable_code, unused_variables)]
+#![allow(unreachable_code, unused_variables, unused_assignments)]
 
 use crate::{config, Context, Data, delete_message, Error, walao};
 use rand::thread_rng;
@@ -63,7 +63,7 @@ impl OtherCmd {
             }
             2 => {
                 let q = "\"I want, I like, I do!\"";
-                let msg = format!("C' once said, {}", q);
+                let msg = format!("C' once said, {q}");
                 ctx.say(msg).await?;
             }
             3 => {
@@ -71,17 +71,17 @@ impl OtherCmd {
             }
             4 => {
                 let q = "\"urmom\"";
-                let msg = format!("Momo said, {}", q);
+                let msg = format!("Momo said, {q}");
                 ctx.say(msg).await?;
             }
             5 => {
                 let q = "\"Less effort you made, more chance to <:ac:1171452943988428802>\"";
-                let msg = format!("Kiu said, {}", q);
+                let msg = format!("Kiu said, {q}");
                 ctx.say(msg).await?;
             }
             6 => {
                 let q = "\"asfaf>>>>?????????ehzdvzdvzdv\"";
-                let msg = format!("partialdiff said, {}", q);
+                let msg = format!("partialdiff said, {q}");
                 ctx.say(msg).await?;
             }
             _ => {
@@ -171,7 +171,7 @@ impl OtherCmd {
         let mut counter: u32 = 0;
         while counter != spam_times {
             ctx.say(s).await?;
-            counter = counter + 1;
+            counter += 1;
         }
         Ok(())
     }
@@ -182,14 +182,14 @@ impl OtherCmd {
         let mut s = String::new();
         while s.len() < DISCORD_CHAR_LIMIT{
             let rand = thread_rng().gen_range(1..5);
-            let mut _cstring = "";
+            let mut choice_str = "";
             match rand{
-                1 => _cstring = "SO SIGMA 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ 😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈",
-                2 => _cstring = "SKIBIDI TOILET BABY GRONK W RIZZ FR IN OHIO STICKING OUT UR GYATT FOR THE RIZZLER 🚽🚽🚽🚽🚽🚽🗿🗿🗿🗿🗿🗿🗿",
-                3 => _cstring = "BABY GRONK W MEWING STREAK W/ LEVEL 69 GYATT EDGING OR GOONING GOATED???? 🗿🗿🗿🗿🗿🗿🗿🗿⁉️⁉️⁉️⁉️⁉️⁉️⁉️",
-                _ => _cstring = "SKIBIDI RIZZLER G-MAN TOILET VS TITAN CAMERAMAN 🚽🚽🚽🚽🚽🚽🚽🚽🚽 SKIBIDI EDGING STREAK 🚽🚽🚽🚽🚽🚽🚽"
+                1 => choice_str = "SO SIGMA 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿 🗿⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ ⁉️ 😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈😈",
+                2 => choice_str = "SKIBIDI TOILET BABY GRONK W RIZZ FR IN OHIO STICKING OUT UR GYATT FOR THE RIZZLER 🚽🚽🚽🚽🚽🚽🗿🗿🗿🗿🗿🗿🗿",
+                3 => choice_str = "BABY GRONK W MEWING STREAK W/ LEVEL 69 GYATT EDGING OR GOONING GOATED???? 🗿🗿🗿🗿🗿🗿🗿🗿⁉️⁉️⁉️⁉️⁉️⁉️⁉️",
+                _ => choice_str = "SKIBIDI RIZZLER G-MAN TOILET VS TITAN CAMERAMAN 🚽🚽🚽🚽🚽🚽🚽🚽🚽 SKIBIDI EDGING STREAK 🚽🚽🚽🚽🚽🚽🚽"
             }
-            s = s.to_owned() + _cstring;
+            s = s.clone() + choice_str;
         }
         ctx.say(s).await?;
         Ok(())

@@ -1,4 +1,5 @@
 #![allow(dead_code, unused_variables, unreachable_code, unused_mut)]
+#![allow(clippy::wildcard_imports)]
 
 use std::cmp::min;
 use toml;
@@ -19,7 +20,7 @@ use crate::utils::types::ExpectError;
 
 type ContestTuple = (usize, String, String, DateTime<FixedOffset>, String, String);
 type Field<'a> = (&'a String, String, bool);
-pub(crate) struct ContestCmd;
+pub(crate) struct OiCmd;
 
 async fn get_contests(hosts: Vec<&str>) -> Result<Vec<ContestTuple>, Error> {
     let toml_info = fs::read_to_string("config.toml")?;
@@ -87,13 +88,13 @@ async fn get_contests(hosts: Vec<&str>) -> Result<Vec<ContestTuple>, Error> {
     Ok(contests)
 }
 
-impl Cmd for ContestCmd{
+impl Cmd for OiCmd{
     fn commands() -> Vec<Command<Data, Error>> {
         vec![Self::contests(),]
     }
 }
 
-impl ContestCmd{
+impl OiCmd{
     fn construct_embed(current_page: i32, total_pages: i32, ctv: Vec<ContestTuple>) -> CreateEmbed{
         let start_index = current_page*PAGE_LEN;
         let end_index = min((current_page+1)*PAGE_LEN, ctv.len() as i32);
@@ -116,7 +117,7 @@ impl ContestCmd{
     }
     /// Command for obtaining contest data,
     /// you can choose a specific website to view recent contests too.
-    #[poise::command(prefix_command, slash_command, category="ContestCmd", aliases("contest", "ct"))]
+    #[poise::command(prefix_command, slash_command, category="OiCmd", aliases("contest", "ct"))]
     async fn contests(ctx: Context<'_>, host: Option<String>) -> Result<(), Error>{
         let mut contest_info: Vec<ContestTuple>;
         if let Some(ref s) = host{
@@ -144,7 +145,7 @@ impl ContestCmd{
             let mut msg = ctx.channel_id().send_message(&ctx, message).await?;
         } else {
             let message = CreateMessage::new()
-                .embed(ContestCmd::construct_embed(page, total_pages, contest_info.clone()))
+                .embed(OiCmd::construct_embed(page, total_pages, contest_info.clone()))
                 .reactions(emoji_list.clone().into_iter());
             let mut msg = ctx.channel_id().send_message(&ctx, message).await?;
 
@@ -161,7 +162,7 @@ impl ContestCmd{
                         if page < total_pages - 1 {
                             page += 1;
                             let builder = EditMessage::new()
-                                .embed(ContestCmd::construct_embed(page, total_pages, contest_info.clone()));
+                                .embed(OiCmd::construct_embed(page, total_pages, contest_info.clone()));
                             msg.edit(ctx, builder).await?;
                         }
                     }
@@ -172,7 +173,7 @@ impl ContestCmd{
                         if page > 0 {
                             page -= 1;
                             let builder = EditMessage::new()
-                                .embed(ContestCmd::construct_embed(page, total_pages, contest_info.clone()));
+                                .embed(OiCmd::construct_embed(page, total_pages, contest_info.clone()));
                             msg.edit(ctx, builder).await?;
                         }
                     }

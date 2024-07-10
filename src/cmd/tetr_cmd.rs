@@ -62,7 +62,7 @@ impl TetrCmd{
         
         Ok(embed)
     }
-    #[poise::command(prefix_command)]
+    #[poise::command(prefix_command, category="TetrCmd")]
     async fn player(ctx: Context<'_>, username: String) -> Result<(), Error>{
         ctx.say("Making progress for implementing tetr command").await?;
         let toml_info = fs::read_to_string("config.toml")?;

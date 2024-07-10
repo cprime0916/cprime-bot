@@ -1,26 +1,19 @@
-pub mod cmd;
-pub mod config;
-pub mod utils;
-
-use poise::{Command, serenity_prelude as serenity};
-use toml;
 use std::fs;
+
+use poise::serenity_prelude as serenity;
 use serenity::gateway::ActivityData;
-use cmd::{other_cmd::OtherCmd, help_cmd::HelpCmd, contest_cmd::ContestCmd};
+
+use cmd::{help_cmd::HelpCmd, oi_cmd::OiCmd, other_cmd::OtherCmd};
+use cmd::structs::CmdBuilder;
 use cmd::tetr_cmd::TetrCmd;
-use utils::traits::Cmd;
+
+mod config;
+mod utils;
+mod cmd;
 
 pub struct Data {} // User data, which is stored and accessible in all command invocations
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
-
-fn commands() -> Vec<Command<Data, Error>>{
-    let mut commands = OtherCmd::commands();
-    commands.extend(HelpCmd::commands());
-    commands.extend(ContestCmd::commands());
-    commands.extend(TetrCmd::commands());
-    commands
-}
 
 #[tokio::main]
 async fn main() {
@@ -29,10 +22,16 @@ async fn main() {
     let token = config_toml.discord.token;
     let intents = serenity::GatewayIntents::all();
     let activity = ActivityData::listening("Preußenlied");
+    let commands = CmdBuilder::new()
+        .add_cmd::<OtherCmd>()
+        .add_cmd::<HelpCmd>()
+        .add_cmd::<OiCmd>()
+        .add_cmd::<TetrCmd>()
+        .build();
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: commands(),
+            commands,
             prefix_options: poise::PrefixFrameworkOptions {
                 prefix: Some(".".to_owned()),
                 ..Default::default()
