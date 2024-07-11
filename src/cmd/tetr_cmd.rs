@@ -68,7 +68,7 @@ impl TetrCmd{
         let toml_info = fs::read_to_string("config.toml")?;
         let config_toml: Config = toml::from_str(&toml_info)?;
         let mut user_url = config_toml.tetr.user_url;
-        user_url.push_str(username.as_ref());
+        user_url.push_str(username.to_ascii_lowercase().as_ref());
         
         let response = reqwest::get(user_url).await?;
         let text = response.text().await?;

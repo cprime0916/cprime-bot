@@ -34,3 +34,16 @@ impl From<ExpectError> for String{
         }
     }
 }
+
+#[derive(poise::ChoiceParameter)]
+pub enum Algorithms{
+    #[name="Depth-first search"]
+    #[name_localized("zh-TW", "深度優先搜尋")]
+    Dfs,
+    #[name="Fibonacci memoization"]
+    #[name_localized("zh-TW", "記憶化費波那契數")]
+    DpFib,
+    #[name="Binary search"]
+    #[name_localized("zh-TW", "二分搜尋演算法")]
+    BinSearch,
+}

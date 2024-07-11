@@ -1,4 +1,4 @@
-use std::cell::{RefCell};
+use std::cell::RefCell;
 use std::rc::Rc;
 use poise::Command;
 use crate::{Data, Error};
@@ -15,8 +15,11 @@ impl CmdBuilder{
             commands
         }
     }
-    pub fn add_cmd<T: Cmd>(self) -> Self{
-        self.commands.borrow_mut().extend(T::commands());
+    pub fn add_cmd<C>(self) -> Self
+    where 
+        C: Cmd
+    {
+        self.commands.borrow_mut().extend(C::commands());
         self
     }
     pub fn build(self) -> Vec<Command<Data, Error>> {

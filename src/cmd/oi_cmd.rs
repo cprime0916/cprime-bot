@@ -16,7 +16,31 @@ use crate::config::Config;
 use crate::utils::{traits::Cmd, deserializer::ContestInfo};
 use crate::{Context, Data, Error, walao};
 use crate::utils::constant::*;
-use crate::utils::types::ExpectError;
+use crate::utils::types::{Algorithms, ExpectError};
+
+const DFS_CODE: &str = "void dfs(int u){\
+                        \n  if(visited[u]) return;\
+                        \n  visited[u] = 1;\
+                        \n  for(auto& v : u) dfs(v);\
+                        }";
+const FIB_CODE: &str = "int fib(int n){\
+                       \n   vector<int> fib(n+1);\
+                       \n   fib[0] = 1;\
+                       \n   fib[1] = 1;\
+                       \n   for(int i=2;i<=n;i++) fib[i] = fib[i-1]+fib[i-2];\
+                       \n   return fib[n];\
+                       \n}";
+const BINARY_SEARCH_CODE: &str = "bool binary_search(int n, int a[], int target){\
+                                    \n  int low = 0;\
+                                    \n  int high = n-1;\
+                                    \n  while(low <= high){\
+                                    \n      int mid = (low+high)/2;\
+                                    \n      if(a[mid] < target) low = m+1;\
+                                    \n      else if(a[mid] > target) high = m-1;\
+                                    \n      else return true;\
+                                    \n  }
+                                    \n  return false;
+                                    \n}";
 
 type ContestTuple = (usize, String, String, DateTime<FixedOffset>, String, String);
 type Field<'a> = (&'a String, String, bool);
@@ -90,7 +114,7 @@ async fn get_contests(hosts: Vec<&str>) -> Result<Vec<ContestTuple>, Error> {
 
 impl Cmd for OiCmd{
     fn commands() -> Vec<Command<Data, Error>> {
-        vec![Self::contests(),]
+        vec![Self::contests(), Self::explain()]
     }
 }
 
@@ -115,6 +139,29 @@ impl OiCmd{
 
         embed
     }
+    
+    fn algo_embed(algo: Algorithms) -> CreateEmbed{
+        let mut title: String;
+        let mut code: String;
+        match algo{
+            Algorithms::Dfs => {
+                title = String::from("Depth-first search (DFS)");
+                code = String::from(DFS_CODE);
+                
+            }
+            Algorithms::DpFib => {
+                title = String::from("Fibonacci w/ memoization");
+                code = String::from(FIB_CODE);
+            }
+            Algorithms::BinSearch => {
+                title = String::from("Binary search");
+                code = String::from(BINARY_SEARCH_CODE);
+            }
+        }
+        let code_fmt = format!("```cpp\n{}```", code);
+        CreateEmbed::new().color(NAVY_BLUE).title(title).field("Implementation", code_fmt, false)
+    }
+    
     /// Command for obtaining contest data,
     /// you can choose a specific website to view recent contests too.
     #[poise::command(prefix_command, slash_command, category="OiCmd", aliases("contest", "ct"))]
@@ -181,6 +228,13 @@ impl OiCmd{
                 }
             }
         }
+        Ok(())
+    }
+    
+    #[poise::command(slash_command, category="OiCmd")]
+    async fn explain(ctx: Context<'_>, algo: Algorithms) -> Result<(), Error>{
+        let msg = CreateMessage::new().embed(OiCmd::algo_embed(algo));
+        let _ = ctx.channel_id().send_message(&ctx, msg).await?;
         Ok(())
     }
 }
