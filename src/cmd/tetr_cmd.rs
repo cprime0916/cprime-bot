@@ -3,7 +3,7 @@ use chrono::{FixedOffset, NaiveDateTime};
 use poise::Command;
 use serde_json as json;
 use serenity::all::{Colour, CreateEmbed, CreateMessage};
-use crate::{Context, Data, Error};
+use crate::{Context, Data, Error, walao};
 use crate::utils::traits::Cmd;
 use toml;
 use crate::config::Config;
@@ -64,7 +64,6 @@ impl TetrCmd{
     }
     #[poise::command(prefix_command, category="TetrCmd")]
     async fn player(ctx: Context<'_>, username: String) -> Result<(), Error>{
-        ctx.say("Making progress for implementing tetr command").await?;
         let toml_info = fs::read_to_string("config.toml")?;
         let config_toml: Config = toml::from_str(&toml_info)?;
         let mut user_url = config_toml.tetr.user_url;
@@ -72,11 +71,12 @@ impl TetrCmd{
         
         let response = reqwest::get(user_url).await?;
         let text = response.text().await?;
+        println!("{text}");
         let info: TetrInfo = json::from_str(text.as_ref())?;
         let mut message = CreateMessage::new();
         match info.user(){
             Some(i) => {
-                message = message.embed(TetrCmd::construct_embed(i).unwrap());
+                message = message.embed(TetrCmd::construct_embed(i).expect(walao!(expect, "Invalid parsing").as_ref()));
             }
             None => {
                 message = message.embed(CreateEmbed::new()

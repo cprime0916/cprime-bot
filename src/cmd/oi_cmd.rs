@@ -70,7 +70,6 @@ async fn get_contests(hosts: Vec<&str>) -> Result<Vec<ContestTuple>, Error> {
 
         let status = response.status();
         let text = response.text().await?;
-
         let data: ContestInfo = json::from_str(&text)?;
 
         match status {

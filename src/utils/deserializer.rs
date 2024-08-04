@@ -42,7 +42,7 @@ pub struct TetrInfo {
     pub success: bool,
     pub error: Option<String>,
     pub cache: Option<Cache>,
-    pub data: Option<TetrUserData>,
+    pub data: Option<TetrUser>,
 }
 
 impl TetrInfo {
@@ -55,7 +55,7 @@ impl TetrInfo {
 
     pub fn user(&self) -> Option<TetrUser> {
         if let Some(d) = &self.data {
-            return Some(d.user.clone());
+            return Some(d.clone());
         }
         None
     }
@@ -66,11 +66,6 @@ pub struct Cache {
     status: Option<String>,
     cached_at: isize,
     cached_until: isize,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct TetrUserData {
-    pub user: TetrUser,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -91,8 +86,8 @@ pub struct TetrUser {
     pub supporter_tier: Option<usize>,
     pub verified: Option<bool>,
     pub league: Option<League>,
-    pub avatar_revision: Option<String>,
-    pub banner_revision: Option<String>,
+    pub avatar_revision: Option<isize>,
+    pub banner_revision: Option<isize>,
     pub bio: Option<String>,
     pub connections: Option<Connections>,
     pub friend_count: Option<usize>,
